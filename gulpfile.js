@@ -1,5 +1,4 @@
 var gulp = require('gulp'),
-    gulp_babel = require('gulp-babel'),
     gulp_sass = require('gulp-sass'),
     browserify = require('browserify'),
     source = require('vinyl-source-stream');
@@ -11,18 +10,12 @@ var outputDir = 'app/',
     sassDir = process + 'sass/';
 
 /* Compiles the app.js (node starting point) in ES6. */
-gulp.task('app', function()
-{
-    gulp.src(app)
-        .pipe(gulp_babel({presets: ["es2015"]}))
-        .pipe(gulp.dest(outputDir));
-});
 
 /* Compiles all ES6 and React sources. */
 gulp.task('js', function()
 {
     browserify({
-        entries: ['./process/js/StockVisuals.js'],
+        entries: ['./process/js/StockVisuals.js', ''],
         extensions: ['.js'],
         debug: true
     })
@@ -41,9 +34,8 @@ gulp.task('sass', function()
 
 gulp.task('watch', function()
 {
-    gulp.watch(app, ['app']);
     gulp.watch(jsDir + '*.js', ['js']);
     gulp.watch(sassDir + '*.scss', ['sass']);
 });
 
-gulp.task('default', ['app', 'js', 'sass', 'watch']);
+gulp.task('default', ['js', 'sass', 'watch']);

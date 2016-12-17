@@ -15,8 +15,12 @@
     "bootstrap-sass": "^3.3.7",
     "browserify": "^13.1.1",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "gulp-sass": "^3.0.0",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+    "c3": "^0.4.11",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1"
   }
 }
