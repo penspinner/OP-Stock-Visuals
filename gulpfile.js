@@ -10,6 +10,14 @@ var outputDir = 'app/',
     sassDir = process + 'sass/';
 
 /* Compiles the app.js (node starting point) in ES6. */
+gulp.task('app', function()
+{
+    browserify(app)
+    .transform('babelify', {presets: ['es2015']})
+    .bundle()
+    .pipe(source('app.js'))
+    .pipe(gulp.dest(outputDir));
+});
 
 /* Compiles all ES6 and React sources. */
 gulp.task('js', function()
@@ -34,6 +42,7 @@ gulp.task('sass', function()
 
 gulp.task('watch', function()
 {
+    // gulp.watch(app, ['app']);
     gulp.watch(jsDir + '*.js', ['js']);
     gulp.watch(sassDir + '*.scss', ['sass']);
 });
