@@ -9,7 +9,7 @@ class StockVisuals extends React.Component
     constructor(props)
     {
         super(props);
-        this.state = {};
+        this.state = {type: 'line'};
     }
 
     componentDidMount()
@@ -17,12 +17,18 @@ class StockVisuals extends React.Component
         let chart = c3.generate
         ({
             bindto: '#chart',
-            data: {columns: []},
+            data: 
+            {
+                columns: [],
+                selection: {draggable: true}
+            },
             axis: 
             {
-                // x: {type: 'timeseries'},
+                x: {label: {text: 'Date', position: 'outer-center'}},
                 y: {label: {text: 'Stock Price', position: 'outer-middle'}}
             },
+            size: {height: 480},
+            type: this.state.type,
             zoom: {enabled: true}
         });
         this.setState({chart: chart});
@@ -34,9 +40,11 @@ class StockVisuals extends React.Component
         {
             /* Get chart and generate random prices. */
             let chart = this.state.chart;
-            let t1PriceHistory = this.getRandomPrices(t1.value);
-            let t2PriceHistory = this.getRandomPrices(t2.value);
-            // console.log(t1PriceHistory, t2PriceHistory);
+            let t1PriceHistory = this.generateRandomPrices(t1.value);
+            let t2PriceHistory = this.generateRandomPrices(t2.value);
+            let priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory);
+            console.log(t1PriceHistory, t2PriceHistory);
+            console.log(priceHistoryRatio);
             chart.load
             ({
                 columns: [t1PriceHistory, t2PriceHistory],
@@ -49,12 +57,23 @@ class StockVisuals extends React.Component
         }
     }
 
-    getRandomPrices(stockName)
+    generatePriceHistoryRatio(t1, t2)
     {
-        let prices = [stockName];
-        let days = this.getNumDaysForTenYears();
-        let rand, price;
-        for (let i = 0; i <= 50; i++)
+        let ratios = ['Ratio'], ratio;
+        for (let i = 1; i < t1.length; i++)
+        {
+            ratio = t1[i] / t2[i];
+            ratios.push(ratio);
+        }
+        return ratios;
+    }
+
+    generateRandomPrices(stockName)
+    {
+        let prices = [stockName],
+            days = this.getNumDaysForTenYears(), 
+            rand, price;
+        for (let i = 0; i <= 100; i++)
         {
             rand = Math.random() * (100 - 1) + 1;
             price = Math.ceil(rand * 100) / 100;
@@ -69,16 +88,43 @@ class StockVisuals extends React.Component
         let today = new Date();
         let tenYearsAgo = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
 
-        return Math.round(Math.abs((today.getTime() - tenYearsAgo.getTime())/(dayMS)));
+        return Math.round(Math.abs((today.getTime() - tenYearsAgo.getTime()) / (dayMS)));
+    }
+
+    lineChart()
+    {
+        this.state.chart.transform('line');
+    }
+
+    barChart()
+    {
+        this.state.chart.transform('bar');
+    }
+
+    dataTable()
+    {
+        
     }
 
     render()
     {
         return (
             <div className="container">
+                <h2 className="text-center">OP Stock Visuals</h2>
                 <TickerForm
                     createChart = {(t1, t2) => this.createChart(t1, t2)}
                 />
+                <div className="row text-center">
+                    <span className="icon" onClick={() => this.lineChart()}>
+                        <i className="fa fa-line-chart fa-3x" aria-hidden="true"></i>
+                    </span>
+                    <span className="icon" onClick={() => this.barChart()}>
+                        <i className="fa fa-bar-chart fa-3x" aria-hidden="true"></i>
+                    </span>
+                    <span className="icon" onClick={() => this.dataTable()}>
+                        <i className="fa fa-table fa-3x" aria-hidden="true"></i>
+                    </span>
+                </div>
                 <div id="chart" className="row"></div>
             </div>
         );
