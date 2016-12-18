@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import c3 from 'c3';
 
+import TickerForm from './TickerForm';
+
 class StockVisuals extends React.Component
 {
     constructor(props)
@@ -15,36 +17,31 @@ class StockVisuals extends React.Component
         let chart = c3.generate
         ({
             bindto: '#chart',
-            data: 
+            data: {columns: []},
+            axis: 
             {
-                columns: 
-                [
-                    
-                ]
-            }
+                // x: {type: 'timeseries'},
+                y: {label: {text: 'Stock Price', position: 'outer-middle'}}
+            },
+            zoom: {enabled: true}
         });
         this.setState({chart: chart});
     }
 
-    createChart(e)
+    createChart(t1, t2)
     {
-        e.preventDefault();
-        if (this._t1.value.toUpperCase() && this._t2.value.toUpperCase())
+        if (t1.value && t2.value)
         {
             /* Get chart and generate random prices. */
             let chart = this.state.chart;
-            let t1PriceHistory = this.getRandomPrices(this._t1.value);
-            let t2PriceHistory = this.getRandomPrices(this._t2.value);
-            console.log(t1PriceHistory, t2PriceHistory);
+            let t1PriceHistory = this.getRandomPrices(t1.value);
+            let t2PriceHistory = this.getRandomPrices(t2.value);
+            // console.log(t1PriceHistory, t2PriceHistory);
             chart.load
             ({
                 columns: [t1PriceHistory, t2PriceHistory],
-                axis: 
-                {
-                    x: {},
-                    y: {label: 'Stock Prices'}
-                }
             });
+            chart.zoom([0,10]);
             this.setState({chart: chart});
         } else
         {
@@ -55,8 +52,9 @@ class StockVisuals extends React.Component
     getRandomPrices(stockName)
     {
         let prices = [stockName];
+        let days = this.getNumDaysForTenYears();
         let rand, price;
-        for (let i = 0; i < 3600; i++)
+        for (let i = 0; i <= 50; i++)
         {
             rand = Math.random() * (100 - 1) + 1;
             price = Math.ceil(rand * 100) / 100;
@@ -65,23 +63,22 @@ class StockVisuals extends React.Component
         return prices;
     }
 
+    getNumDaysForTenYears()
+    {
+        let dayMS = 24 * 60 * 60 * 1000;
+        let today = new Date();
+        let tenYearsAgo = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
+
+        return Math.round(Math.abs((today.getTime() - tenYearsAgo.getTime())/(dayMS)));
+    }
+
     render()
     {
         return (
             <div className="container">
-                <div className="row">
-                    <form className="col-sm-4 center-block" onSubmit={(e) => this.createChart(e)}>
-                        <div className="form-group">
-                            <label>Ticker 1</label>
-                            <input className="form-control" ref={(ref) => this._t1 = ref} type="text" maxLength="10"/>
-                        </div>
-                        <div className="form-group">
-                            <label>Ticker 2</label>
-                            <input className="form-control" ref={(ref) => this._t2 = ref} type="text" maxLength="10"/>
-                        </div>
-                        <button type="submit" className="btn">Update</button>
-                    </form>
-                </div>
+                <TickerForm
+                    createChart = {(t1, t2) => this.createChart(t1, t2)}
+                />
                 <div id="chart" className="row"></div>
             </div>
         );
