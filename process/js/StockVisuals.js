@@ -173,7 +173,7 @@ class StockVisuals extends React.Component
         tableBody = (<tbody>{tableRows}</tbody>);
         // Create the table.
         table = (
-            <table className="table table-hover table-bordered">
+            <table className="table table-condensed table-hover table-bordered">
                 {tableHead}
                 {tableBody}
             </table>
@@ -204,7 +204,9 @@ class StockVisuals extends React.Component
                     </span>
                 </div>
                 <div id="chart" className="row"></div>
-                {this.state.table}
+                <div className="table-responsive">
+                    {this.state.table}
+                </div>
             </div>
         );
     }
