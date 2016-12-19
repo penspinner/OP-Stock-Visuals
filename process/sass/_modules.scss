@@ -9,8 +9,11 @@
     .icon
     {
         cursor: pointer;
-        margin: auto 10px;
+        margin: 10px;
+        padding: 6px;
     }
+
+    .active {border-bottom: 5px solid $darkblue;}
 }
 
 .nopad { padding: 0 !important; margin: 0 !important;}
