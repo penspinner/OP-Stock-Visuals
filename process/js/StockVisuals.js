@@ -14,6 +14,9 @@ class StockVisuals extends React.Component
 
     componentDidMount()
     {
+        let numDaysTenYears = this.getNumDaysForTenYears();
+        let daysList = this.generateDaysList(numDaysTenYears);
+        // console.log(daysList);
         let chart = c3.generate
         ({
             bindto: '#chart',
@@ -31,31 +34,47 @@ class StockVisuals extends React.Component
             type: this.state.type,
             zoom: {enabled: true}
         });
-        this.setState({chart: chart});
+        this.setState({numDaysTenYears: numDaysTenYears, daysList: daysList, chart: chart});
     }
 
     createChart(t1, t2)
     {
-        if (t1.value && t2.value)
+        // Create new chart only if input values are different from before. 
+        if (t1.value !== this.state.t1 || t2.value !== this.state.t2)
         {
-            /* Get chart and generate random prices. */
+            // Get chart and generate random prices. 
             let chart = this.state.chart;
-            let t1PriceHistory = this.generateRandomPrices(t1.value);
-            let t2PriceHistory = this.generateRandomPrices(t2.value);
-            let priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory);
-            console.log(t1PriceHistory, t2PriceHistory);
-            console.log(priceHistoryRatio);
-            chart.load
+            // Unload all stock price data and regenerate new data.
+            chart.unload
             ({
-                columns: [t1PriceHistory, t2PriceHistory],
+                done: () =>
+                {
+                    let t1PriceHistory = this.generateRandomPrices(t1.value);
+                    let t2PriceHistory = this.generateRandomPrices(t2.value);
+                    let priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory);
+                    this.createDataTable(t1, t2, t1PriceHistory, t2PriceHistory, priceHistoryRatio);
+                    // console.log(t1PriceHistory, t2PriceHistory);
+                    // console.log(priceHistoryRatio);
+                    chart.load({columns: [t1PriceHistory, t2PriceHistory]});
+                    // chart.zoom([0,10]);
+                    this.setState
+                    ({
+                        t1: t1.value,
+                        t2: t2.value,
+                        chart: chart, 
+                        t1PriceHistory: t1PriceHistory,
+                        t2PriceHistory: t2PriceHistory,
+                        priceHistoryRatio: priceHistoryRatio
+                    });
+                }
             });
-            chart.zoom([0,10]);
-            this.setState({chart: chart});
         } else
-        {
-            /* Alert */
+        { 
+            console.log('Change at least one input value.');
         }
     }
+
+    unloadData() {this.state.chart.unload();}
 
     generatePriceHistoryRatio(t1, t2)
     {
@@ -71,15 +90,27 @@ class StockVisuals extends React.Component
     generateRandomPrices(stockName)
     {
         let prices = [stockName],
-            days = this.getNumDaysForTenYears(), 
+            days = this.state.numDaysTenYears, 
             rand, price;
-        for (let i = 0; i <= 100; i++)
+        for (let i = 0; i <= days; i++)
         {
             rand = Math.random() * (100 - 1) + 1;
             price = Math.ceil(rand * 100) / 100;
             prices.push(price);
         }
         return prices;
+    }
+    
+    generateDaysList(days)
+    {
+        let daysList = ['Date'], d;
+        for (let i = 0; i < days; i++)
+        {
+            d = new Date();
+            d.setDate(d.getDate() - i);
+            daysList.push(d);
+        }
+        return daysList;
     }
 
     getNumDaysForTenYears()
@@ -98,12 +129,56 @@ class StockVisuals extends React.Component
 
     barChart()
     {
+
         this.state.chart.transform('bar');
     }
 
-    dataTable()
+    createDataTable(t1, t2, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
+        let daysList = this.state.daysList,
+            // t1PriceHistory = this.state.t1PriceHistory,
+            // t2PriceHistory = this.state.t2PriceHistory,
+            // priceHistoryRatio = this.state.priceHistoryRatio,
+            numDaysTenYears = this.state.numDaysTenYears;
         
+        let table, tableHead, tableBody, tableRows = [], currentRow;
+
+        // tableHead holds the header of the data.
+        tableHead = (
+            <thead>
+                <tr>
+                    <th>{'Date'}</th>
+                    <th>{t1.value}</th>
+                    <th>{t2.value}</th>
+                    <th>{'Ratio'}</th>
+                </tr>
+            </thead>
+        );
+
+        // Create each row with date, stock 1 price, stock 2 price, and price ratio.
+        // Then push the row in the table rows.
+        for (let i = 1; i < numDaysTenYears + 1; i++)
+        {
+            currentRow = (
+                <tr key={i}>
+                    <td>{daysList[i].toLocaleDateString()}</td>
+                    <td>{t1PriceHistory[i]}</td>
+                    <td>{t2PriceHistory[i]}</td>
+                    <td>{priceHistoryRatio[i]}</td>
+                </tr>
+            );
+            tableRows.push(currentRow);
+        }
+        // 
+        tableBody = (<tbody>{tableRows}</tbody>);
+        // Create the table.
+        table = (
+            <table className="table table-hover table-bordered">
+                {tableHead}
+                {tableBody}
+            </table>
+        );
+        this.setState({table: table});
     }
 
     render()
@@ -124,8 +199,12 @@ class StockVisuals extends React.Component
                     <span className="icon" onClick={() => this.dataTable()}>
                         <i className="fa fa-table fa-3x" aria-hidden="true"></i>
                     </span>
+                    <span className="icon" onClick={() => this.unloadData()}>
+                        <i className="fa fa-times fa-3x" aria-hidden="true"></i>
+                    </span>
                 </div>
                 <div id="chart" className="row"></div>
+                {this.state.table}
             </div>
         );
     }
