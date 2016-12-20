@@ -15,13 +15,13 @@ class TickerForm extends React.Component
     render()
     {
         return (
-            <div className="row">
-                <form className="col-sm-4 col-sm-offset-4" onSubmit={(e) => this.createChart(e)}>
-                    <div className="form-group">
+            <div className="col-md-12 nopad">
+                <form onSubmit={(e) => this.createChart(e)}>
+                    <div className="input-group">
                         <label>Ticker 1</label>
                         <input className="form-control" ref={(ref) => this._t1 = ref} type="text" maxLength="10" autoFocus/>
                     </div>
-                    <div className="form-group">
+                    <div className="input-group">
                         <label>Ticker 2</label>
                         <input className="form-control" ref={(ref) => this._t2 = ref} type="text" maxLength="10"/>
                     </div>

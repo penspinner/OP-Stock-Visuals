@@ -8292,11 +8292,13 @@ button.close {
 
 #stockVisuals .icon {
   cursor: pointer;
-  margin: 10px;
   padding: 6px; }
 
 #stockVisuals .active {
   border-bottom: 5px solid #0A2933; }
+
+#stockVisuals .pad {
+  margin: 15px 0; }
 
 .nopad {
   padding: 0 !important;
@@ -8306,5 +8308,8 @@ body {
   background-color: #EAE3CB;
   color: #0A2933; }
 
-h1, h2, h3, h4, h5 {
+h1, h2, h3 {
   color: #1F7F9E; }
+
+h4, h5 {
+  color: #0D3340; }

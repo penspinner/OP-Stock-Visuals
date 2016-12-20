@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import c3 from 'c3';
 
 import TickerForm from './TickerForm';
-import OptionBar from './OptionBar'
+import OptionBar from './OptionBar';
+import Statistics from './Statistics';
 
 class StockVisuals extends React.Component
 {
@@ -40,7 +41,8 @@ class StockVisuals extends React.Component
                         },
                     y: {label: {text: 'Stock Price', position: 'outer-middle'}}
                 },
-                size: {height: 480},
+                bar: {width: 3},
+                size: {height: 500},
                 zoom: {enabled: true}
             });
         this.setState({numDaysTenYears: numDaysTenYears, dateList: dateList, chart: chart});
@@ -62,16 +64,18 @@ class StockVisuals extends React.Component
                         dateList = this.state.dateList,
                         t1PriceHistory = this.generateRandomPrices(t1.value),
                         t2PriceHistory = this.generateRandomPrices(t2.value),
-                        priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory);
+                        priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory),
+                        statistics = this.getDataStatistics(t1.value, t2.value, t1PriceHistory.slice(1), t2PriceHistory.slice(1));
 
                     this.createDataTable(dateList, numDaysTenYears, t1, t2, t1PriceHistory, t2PriceHistory, priceHistoryRatio);
                     // console.log(t1PriceHistory, t2PriceHistory);
                     // console.log(priceHistoryRatio);
+                    // console.log(statistics);
                     chart.load
                     ({
                         columns: [dateList, t1PriceHistory, t2PriceHistory]
                     });
-                    // chart.zoom([0,10]);
+                    chart.zoom([new Date().setDate(new Date().getDate() - 10), new Date()]);
                     this.setState
                     ({
                         t1: t1.value,
@@ -79,7 +83,8 @@ class StockVisuals extends React.Component
                         chart: chart, 
                         t1PriceHistory: t1PriceHistory,
                         t2PriceHistory: t2PriceHistory,
-                        priceHistoryRatio: priceHistoryRatio
+                        priceHistoryRatio: priceHistoryRatio,
+                        statistics: statistics
                     });
                 }
             });
@@ -87,6 +92,27 @@ class StockVisuals extends React.Component
         { 
             console.log('Change at least one input value.');
         }
+    }
+
+    getDataStatistics(t1, t2, t1PriceHistory, t2PriceHistory)
+    {  
+        let t1Max = Math.max(...t1PriceHistory),
+            t2Max = Math.max(...t2PriceHistory),
+            t1Min = Math.min(...t1PriceHistory),
+            t2Min = Math.min(...t2PriceHistory),
+            t1Today = t1PriceHistory[1],
+            t2Today = t2PriceHistory[1];
+        
+        return {
+            t1: t1,
+            t2: t2,
+            t1Max: t1Max,
+            t2Max: t2Max,
+            t1Min: t1Min,
+            t2Min: t2Min,
+            t1Today: t1Today,
+            t2Today: t2Today
+        };
     }
 
     createDataTable(dateList, numDaysTenYears, t1, t2, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
@@ -176,47 +202,67 @@ class StockVisuals extends React.Component
 
     lineChart()
     {
-        this.state.chart.transform('line');
-        this.setState({type: 'line'});
+        if (this.state.type !== 'line')
+        {
+            this.state.chart.transform('line');
+            this.setState({type: 'line'});
+        }
     }
 
     barChart()
     {
-        this.state.chart.transform('bar');
-        this.setState({type: 'bar'});
+        if (this.state.type !== 'bar')
+        {
+            this.state.chart.transform('bar');
+            this.setState({type: 'bar'});
+        }
     }
 
     dataTable()
     {
-        this.setState({type: 'table'});
+        if (this.state.type !== 'table')
+        {
+            this.setState({type: 'table'});
+
+        }
     }
 
     unloadData() {this.state.chart.unload();}
 
     render()
     {
+        let t1 = this.state.t1 || 'Ticker 1';
+        let t2 = this.state.t2 || 'Ticker 2';
+
         return (
             <div className="container">
                 <h2 className="text-center">OP Stock Visuals</h2>
-                <TickerForm
-                    createChart = {(t1, t2) => this.createChart(t1, t2)}
-                />
-                <OptionBar
-                    chartType = {this.state.type}
-                    lineChart = {() => this.lineChart()}
-                    barChart = {() => this.barChart()}
-                    dataTable = {() => this.dataTable()}
-                    unloadData = {() => this.unloadData()}
-                />
                 <div className="row">
-                    {
-                        this.state.type === 'line' || 
-                        this.state.type === 'bar' ?
-                        <div id="chart"></div> : 
-                        <div className="table-responsive">
+                    <div className="col-md-9">
+                        <div id="chart" className={"c3" + (this.state.type === "line" || this.state.type === "bar" ? "" : " hidden")}>
+                        </div>
+                        <div className={"table-responsive" + (this.state.type === "table" ? "" : " hidden")}>
                             {this.state.table}
                         </div>
-                    }
+                    </div>
+                    <div className="col-md-3">
+                        <TickerForm
+                            createChart = {(t1, t2) => this.createChart(t1, t2)}
+                        />
+                        <OptionBar
+                            chartType = {this.state.type}
+                            lineChart = {() => this.lineChart()}
+                            barChart = {() => this.barChart()}
+                            dataTable = {() => this.dataTable()}
+                            unloadData = {() => this.unloadData()}
+                        />
+                        {
+                            this.state.statistics &&
+                            <Statistics
+                                statistics = {this.state.statistics}
+                            />
+                        }
+                    </div>
                 </div>
             </div>
         );
