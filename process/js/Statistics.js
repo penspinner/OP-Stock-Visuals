@@ -6,7 +6,7 @@ class Statistics extends React.Component
     {
         return (
             <div className="col-md-12 nopad">
-                <h3 className="text-center">Statistics</h3>
+                <h3>Statistics</h3>
                 <table className="table table-condensed">
                     <thead>
                         <tr>

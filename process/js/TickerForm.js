@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 
 let defaultEndDate = new Date();
 let defaultStartDate = new Date(defaultEndDate.getFullYear() - 1, defaultEndDate.getMonth(), defaultEndDate.getDate());
@@ -24,8 +25,8 @@ class TickerForm extends React.Component
         e.preventDefault();
         this._t1.value = this._t1.value.toUpperCase().trim();
         this._t2.value = this._t2.value.toUpperCase().trim();
-        console.log(this._dStart, this._dEnd);
-        console.log(new Date(this._dStart.value.replace(/-/g, '\/')), new Date(this._dEnd.value.replace(/-/g, '\/')));
+        // console.log(this._dStart, this._dEnd);
+        // console.log(new Date(this._dStart.value.replace(/-/g, '\/')), new Date(this._dEnd.value.replace(/-/g, '\/')));
         let dStart = new Date(this._dStart.value),
             dEnd = new Date(this._dEnd.value);
         if (this._t1.value && this._t2.value)
@@ -34,7 +35,16 @@ class TickerForm extends React.Component
                 this.props.initData(this._t1.value, this._t2.value, this._dStart.value.replace(/-/g, '\/'), this._dEnd.value.replace(/-/g, '\/'));
             else
                 console.log('First date needs to be before end date.')
+        } else
+        {
+            alert('Please enter ticker names.');
         }
+    }
+
+    resetFields()
+    {
+        this._t1.value = '';
+        this._t2.value = '';
     }
 
     render()

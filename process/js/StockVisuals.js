@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import c3 from 'c3';
@@ -5,6 +6,7 @@ import c3 from 'c3';
 import TickerForm from './TickerForm';
 import OptionBar from './OptionBar';
 import Statistics from './Statistics';
+import ChartAndTable from './ChartAndTable';
 
 class StockVisuals extends React.Component
 {
@@ -16,8 +18,10 @@ class StockVisuals extends React.Component
             type: 'line',
             typeTitle: 'Progression Chart'
         };
+        console.log($);
     }
 
+    /* On mount, init chart and set it in the state. */
     componentDidMount()
     {
         let chart = c3.generate
@@ -36,7 +40,10 @@ class StockVisuals extends React.Component
                             tick: {format: '%m/%d/%Y'},
                             // label: {text: 'Date MM/DD/YYYY', position: 'outer-center'}
                         },
-                    y: {label: {text: 'Stock Price', position: 'outer-middle'}}
+                    y:  {
+                            tick: {format: (d) => ('$' + d)},
+                            label: {text: 'Stock Price', position: 'outer-middle'}
+                        }
                 },
                 grid: {x: {show: true}, y: {show: true}},
                 bar: {width: 3},
@@ -46,6 +53,7 @@ class StockVisuals extends React.Component
         this.setState({chart: chart});
     }
 
+    /*  */
     initData(t1, t2, startDateString, endDateString)
     {
         // Create new chart only if input values are different from before. 
@@ -54,7 +62,8 @@ class StockVisuals extends React.Component
             startDateString !== this.state.startDateString ||
             endDateString !== this.state.endDateString)
         {
-            let numDays = this.getNumDaysBetween(new Date(startDateString), new Date(endDateString)),
+            let typeTitle = this.state.type === 'bar' ? 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')' : this.state.typeTitle,
+                numDays = this.getNumDaysBetween(new Date(startDateString), new Date(endDateString)),
                 dateList = this.generateDateList(numDays, endDateString),
                 t1PriceHistory = this.generateRandomPrices(t1, numDays),
                 t2PriceHistory = this.generateRandomPrices(t2, numDays),
@@ -69,6 +78,7 @@ class StockVisuals extends React.Component
                 {
                     t1: t1,
                     t2: t2,
+                    typeTitle: typeTitle,
                     startDateString: startDateString,
                     endDateString: endDateString,
                     numDays: numDays,
@@ -149,7 +159,7 @@ class StockVisuals extends React.Component
 
         // Create each row with date, stock 1 price, stock 2 price, and price ratio.
         // Then push the row in the table rows.
-        for (let i = 1; i <= numDays + 1; i++)
+        for (let i = numDays + 1; i >= 1; i--)
         {
             currentRow = (
                 <tr key={i}>
@@ -233,7 +243,9 @@ class StockVisuals extends React.Component
             this.state.chart.show(['Ratio']);
             this.state.chart.hide([this.state.t1, this.state.t2]);
             this.state.chart.transform('bar');
-            this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (Ticker1 : Ticker2)'});
+            let t1 = this.state.t1 || 'Ticker 1',
+                t2 = this.state.t2 || 'Ticker 2';
+            this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')'});
         }
     }
 
@@ -247,17 +259,21 @@ class StockVisuals extends React.Component
 
     unloadData() 
     {
-        this.state.chart.unload();
-        this.setState
-        ({
-            t1: '',
-            t2: '',
-            t1PriceHistory: [],
-            t2PriceHistory: [],
-            priceHistoryRatio: [],
-            statistics: null,
-            table: null
-        });
+        if (confirm('Are you sure you want to unload the chart data?'))
+        {
+            this.state.chart.unload();
+            this.setState
+            ({
+                t1: '',
+                t2: '',
+                t1PriceHistory: [],
+                t2PriceHistory: [],
+                priceHistoryRatio: [],
+                statistics: null,
+                table: null
+            });
+            this._TickerForm.resetFields();
+        }
     }
 
     render()
@@ -267,20 +283,15 @@ class StockVisuals extends React.Component
                 <h1 className="text-center">OP Stock Visuals</h1>
                 <div className="row">
                     <div className="col-md-9 pad">
-                        <h3 className="text-center">{this.state.typeTitle}</h3>
-                        <div id="chart" className={"c3" + (this.state.type === "line" || this.state.type === "bar" ? "" : " hidden")}>
-                        </div>
-                        <div id="dataTable" className={(this.state.type === "table" ? "" : "hidden")}>
-                            <div className="navbar-form navbar-right">
-
-                            </div>
-                            <div className="table-responsive">
-                                {this.state.table}
-                            </div>
-                        </div>
+                        <ChartAndTable
+                            typeTitle = {this.state.typeTitle}
+                            type = {this.state.type}
+                            table = {this.state.table}
+                        />
                     </div>
                     <div className="col-md-3 pad">
                         <TickerForm
+                            ref = {(ref) => this._TickerForm = ref}
                             initData = {(t1, t2, startDate, endDate) => this.initData(t1, t2, startDate, endDate)}
                         />
                         <OptionBar
