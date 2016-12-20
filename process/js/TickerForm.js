@@ -24,10 +24,17 @@ class TickerForm extends React.Component
         e.preventDefault();
         this._t1.value = this._t1.value.toUpperCase().trim();
         this._t2.value = this._t2.value.toUpperCase().trim();
-        console.log(this._dStart, this._dEnd);
-        console.log(new Date(this._dStart.value), new Date(this._dEnd.value));
+        // console.log(this._dStart, this._dEnd);
+        // console.log(new Date(this._dStart.value), new Date(this._dEnd.value));
+        let dStart = new Date(this._dStart.value),
+            dEnd = new Date(this._dEnd.value);
         if (this._t1.value && this._t2.value)
-            this.props.initData(this._t1.value, this._t2.value, this._dStart.value, this._dEnd.value);
+        {
+            if (dStart.getTime() < dEnd.getTime())
+                this.props.initData(this._t1.value, this._t2.value, this._dStart.value, this._dEnd.value);
+            else
+                console.log('First date needs to be before end date.')
+        }
     }
 
     render()

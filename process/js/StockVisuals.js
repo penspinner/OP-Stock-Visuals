@@ -42,6 +42,7 @@ class StockVisuals extends React.Component
                         },
                     y: {label: {text: 'Stock Price', position: 'outer-middle'}}
                 },
+                grid: {x: {show: true}, y: {show: true}},
                 bar: {width: 3},
                 size: {height: 500},
                 zoom: {enabled: true}
@@ -52,7 +53,10 @@ class StockVisuals extends React.Component
     initData(t1, t2, startDateString, endDateString)
     {
         // Create new chart only if input values are different from before. 
-        if (t1 !== this.state.t1 || t2 !== this.state.t2)
+        if (t1 !== this.state.t1 ||
+            t2 !== this.state.t2 ||
+            startDateString !== this.state.startDateString ||
+            endDateString !== this.state.endDateString)
         {
             let numDays = this.getNumDaysBetween(new Date(startDateString), new Date(endDateString)),
                 dateList = this.generateDateList(numDays, endDateString),
@@ -69,6 +73,8 @@ class StockVisuals extends React.Component
                 {
                     t1: t1,
                     t2: t2,
+                    startDateString: startDateString,
+                    endDateString: endDateString,
                     numDays: numDays,
                     dateList: dateList,
                     t1PriceHistory: t1PriceHistory,
@@ -88,7 +94,6 @@ class StockVisuals extends React.Component
 
     createChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
-        // Get chart and generate random prices. 
         let chart = this.state.chart;
         // Unload all stock price data and regenerate new data.
         chart.unload
@@ -241,7 +246,6 @@ class StockVisuals extends React.Component
         if (this.state.type !== 'table')
         {
             this.setState({type: 'table', typeTitle: 'Data Table'});
-
         }
     }
 
