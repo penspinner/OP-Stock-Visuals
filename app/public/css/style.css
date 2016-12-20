@@ -8300,6 +8300,10 @@ button.close {
 #stockVisuals .pad {
   margin: 15px 0; }
 
+#stockVisuals #dataTable {
+  max-height: 85%;
+  overflow: auto; }
+
 .nopad {
   padding: 0 !important;
   margin: 0 !important; }

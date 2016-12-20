@@ -16,8 +16,8 @@ class Statistics extends React.Component
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Today: ${this.props.statistics.t1Today}</td>
-                            <td>Today: ${this.props.statistics.t2Today}</td>
+                            <td>Most recent: ${this.props.statistics.t1Today}</td>
+                            <td>Most recent: ${this.props.statistics.t2Today}</td>
                         </tr>
                         <tr>
                             <td>Highest: ${this.props.statistics.t1Max}</td>

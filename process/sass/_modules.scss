@@ -14,6 +14,12 @@
 
     .active { border-bottom: 5px solid $darkblue; }
     .pad { margin: 15px 0; }
+
+    #dataTable
+    {
+        max-height: 85%;
+        overflow: auto;
+    }
 }
 
 .nopad { padding: 0 !important; margin: 0 !important;}
