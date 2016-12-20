@@ -8295,7 +8295,8 @@ button.close {
   padding: 6px; }
 
 #stockVisuals .active {
-  border-bottom: 5px solid #0A2933; }
+  border: 4px solid #738a05;
+  border-radius: 1px; }
 
 #stockVisuals .pad {
   margin: 15px 0; }

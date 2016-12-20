@@ -20,10 +20,6 @@ class StockVisuals extends React.Component
 
     componentDidMount()
     {
-        // let today = new Date(),
-        //     tenYearsAgo = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate()),
-        //     numDaysTenYears = this.getNumDaysBetween(today, tenYearsAgo),
-        //     dateList = this.generateDateList(numDaysTenYears),
         let chart = c3.generate
             ({
                 bindto: '#chart',
@@ -153,7 +149,7 @@ class StockVisuals extends React.Component
 
         // Create each row with date, stock 1 price, stock 2 price, and price ratio.
         // Then push the row in the table rows.
-        for (let i = 1; i < numDays + 1; i++)
+        for (let i = 1; i <= numDays + 1; i++)
         {
             currentRow = (
                 <tr key={i}>
@@ -192,7 +188,7 @@ class StockVisuals extends React.Component
     {
         let prices = [stockName],
             random, price;
-        for (let i = 0; i < days; i++)
+        for (let i = 0; i <= days; i++)
         {
             random = Math.random() * (max - min) + min;
             price = Math.ceil(random * 100) / 100;
@@ -204,7 +200,7 @@ class StockVisuals extends React.Component
     generateDateList(days, dateString)
     {
         let dateList = ['Date'], d;
-        for (let i = days - 1; i >= 0; i--)
+        for (let i = days; i >= 0; i--)
         {
             d = new Date(dateString);
             d.setDate(d.getDate() - i);
@@ -274,8 +270,11 @@ class StockVisuals extends React.Component
                         <h3 className="text-center">{this.state.typeTitle}</h3>
                         <div id="chart" className={"c3" + (this.state.type === "line" || this.state.type === "bar" ? "" : " hidden")}>
                         </div>
-                        <div id="dataTable">
-                            <div className={"table-responsive" + (this.state.type === "table" ? "" : " hidden")}>
+                        <div id="dataTable" className={(this.state.type === "table" ? "" : "hidden")}>
+                            <div className="navbar-form navbar-right">
+
+                            </div>
+                            <div className="table-responsive">
                                 {this.state.table}
                             </div>
                         </div>

@@ -6,9 +6,9 @@ let defaultStartDate = new Date(defaultEndDate.getFullYear() - 1, defaultEndDate
 function formatDate(date, divider) 
 {
     var someday = new Date(date);
-    var month = someday.getUTCMonth() + 1;
-    var day = someday.getUTCDate();
-    var year = someday.getUTCFullYear();
+    var month = someday.getMonth() + 1;
+    var day = someday.getDate();
+    var year = someday.getFullYear();
 
     if (month <= 9) { month = '0' + month; }
     if (day <= 9) { day = '0' + day; }
@@ -24,14 +24,14 @@ class TickerForm extends React.Component
         e.preventDefault();
         this._t1.value = this._t1.value.toUpperCase().trim();
         this._t2.value = this._t2.value.toUpperCase().trim();
-        // console.log(this._dStart, this._dEnd);
-        // console.log(new Date(this._dStart.value), new Date(this._dEnd.value));
+        console.log(this._dStart, this._dEnd);
+        console.log(new Date(this._dStart.value.replace(/-/g, '\/')), new Date(this._dEnd.value.replace(/-/g, '\/')));
         let dStart = new Date(this._dStart.value),
             dEnd = new Date(this._dEnd.value);
         if (this._t1.value && this._t2.value)
         {
             if (dStart.getTime() < dEnd.getTime())
-                this.props.initData(this._t1.value, this._t2.value, this._dStart.value, this._dEnd.value);
+                this.props.initData(this._t1.value, this._t2.value, this._dStart.value.replace(/-/g, '\/'), this._dEnd.value.replace(/-/g, '\/'));
             else
                 console.log('First date needs to be before end date.')
         }

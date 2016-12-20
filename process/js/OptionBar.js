@@ -12,18 +12,13 @@ class OptionBar extends React.Component
         return (
             <div className="col-md-12 nopad">
                 <h3 className="text-center">Options</h3>
-                <span className={"icon" + (this.props.chartType === "line" ? " active" : "")} onClick={() => this.lineChart()}>
-                    <i className="fa fa-line-chart fa-3x" aria-hidden="true"></i>
-                </span>
-                <span className={"icon" + (this.props.chartType === "bar" ? " active" : "")} onClick={() => this.barChart()}>
-                    <i className="fa fa-bar-chart fa-3x" aria-hidden="true"></i>
-                </span>
-                <span className={"icon" + (this.props.chartType === "table" ? " active" : "")} onClick={() => this.dataTable()}>
-                    <i className="fa fa-table fa-3x" aria-hidden="true"></i>
-                </span>
-                <span className="icon" onClick={() => this.unloadData()}>
-                    <i className="fa fa-times fa-3x" aria-hidden="true"></i>
-                </span>
+                <i className={"fa fa-line-chart fa-3x icon" + (this.props.chartType === "line" ? " active" : "")} 
+                    onClick={() => this.lineChart()} aria-hidden="true"></i>
+                <i className={"fa fa-bar-chart fa-3x icon" + (this.props.chartType === "bar" ? " active" : "")} 
+                    onClick={() => this.barChart()} aria-hidden="true"></i>
+                <i className={"fa fa-table fa-3x icon" + (this.props.chartType === "table" ? " active" : "")} 
+                    onClick={() => this.dataTable()} aria-hidden="true"></i>
+                <i className="fa fa-times fa-3x icon" onClick={() => this.unloadData()} aria-hidden="true"></i>
             </div>
         );
     }
