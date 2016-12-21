@@ -65,7 +65,7 @@ class StockVisuals extends React.Component
             endDateString !== this.state.endDateString)
         {
             console.log(startDateString,endDateString);
-            googleFinance.historical
+            yahooFinance.historical
             (
                 {
                     symbols: [t1, t2],
@@ -76,6 +76,24 @@ class StockVisuals extends React.Component
                     console.log(result);
                 }
             );
+            // // https://www.google.com/finance/historical?q=YHOO&startdate=2015-12-20&enddate=2016-12-20
+            // let data = {
+            //     "q": t1,
+            //     "startdate": startDateString,
+            //     "enddate": endDateString,
+            //     "output": "csv"
+            // };
+            // $.ajax
+            // ({
+            //     url: 'https://www.google.com/finance/historical',
+            //     data: data,
+            //     type: 'GET',
+            //     // crossDomain: true,
+            //     dataType: 'csv',
+            //     success: function(res) { console.log(res); },
+            //     error: function(xhr) { console.log(xhr); }
+            //     // beforeSend: setHeader
+            // });
             
             let typeTitle = this.state.type === 'bar' ? 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')' : this.state.typeTitle,
                 numDays = this.getNumDaysBetween(new Date(startDateString.replace(/-/g, '\/')), new Date(endDateString.replace(/-/g, '\/'))),
