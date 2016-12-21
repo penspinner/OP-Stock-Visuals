@@ -1,4 +1,4 @@
-import $ from 'jquery';
+// import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import c3 from 'c3';
@@ -52,7 +52,7 @@ class StockVisuals extends React.Component
                         }
                 },
                 grid: {y: {show: true}},
-                bar: {width: 3},
+                bar:  {width: 3},
                 size: {height: 500},
                 zoom: {enabled: true}
             });
@@ -63,8 +63,6 @@ class StockVisuals extends React.Component
     /** 
      * Generate data for the given tickers and starting & ending date.
      * Then store them in the state and create the charts and table.
-     * @param t1, t2 - Ticker 1, Ticker 2
-     * @param startDateString, endDateString
     */
     initData(t1, t2, startDateString, endDateString)
     {
@@ -168,7 +166,7 @@ class StockVisuals extends React.Component
     }
 
     /**
-     * Creates the chart with the given parameters and stores it into the state.
+     * Fills the chart with the given parameters and stores it into the state.
      */
     fillChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
@@ -177,29 +175,24 @@ class StockVisuals extends React.Component
         chart.unload
         ({
             done: () =>
-            {
-                let hiddenData = this.state.type === 'line' ? ['Ratio'] : [t1, t2];
-                chart.hide(hiddenData);
-                chart.legend.hide(hiddenData);
-                
+            {   
                 chart.load
                 ({
                     columns: [dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio],
                     axes: {[t2]: 'y2'}
                 });
-                if (this.state.type === 'line')
-                    chart.axis.labels({y: t1 + ' Stock Price $', y2: t2 + ' Stock Price $'});
-                else if (this.state.type === 'bar')
-                    chart.axis.labels({y: 'Ratio'});
-                    
                 // chart.zoom([new Date().setDate(new Date().getDate() - 10), new Date()]);
-                this.setState({chart: chart});
+                this.setState({chart: chart}, 
+                () => {
+                    if (this.state.type === 'line') this.lineChart();
+                    else if (this.state.type === 'bar') this.barChart();
+                });
             }
         });
     }
 
     /**
-     * Creates the data table and stores it into the state.
+     * Fills the data table and stores it into the state.
      */
     fillDataTable(t1, t2, numDays, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
@@ -289,22 +282,19 @@ class StockVisuals extends React.Component
      */
     lineChart()
     {
-        if (this.state.type !== 'line')
-        {
-            let chart = this.state.chart;
+        let chart = this.state.chart;
 
-            // Hides the price history ratio and shows the ticker data.
-            chart.hide(['Ratio']);
-            chart.legend.hide(['Ratio']);
-            chart.show([this.state.t1, this.state.t2]);
-            chart.legend.show([this.state.t1, this.state.t2]);
-            // Shows the y2 axis.
-            $('.c3-axis-y2').css('display', '');
-            // Changes the labels
-            chart.axis.labels({y: this.state.t1 + ' Stock Price $'});
-            chart.transform('line');
-            this.setState({type: 'line', typeTitle: 'Progression Chart'});
-        }
+        // Hides the price history ratio and shows the ticker data.
+        chart.hide(['Ratio']);
+        chart.legend.hide(['Ratio']);
+        chart.show([this.state.t1, this.state.t2]);
+        chart.legend.show([this.state.t1, this.state.t2]);
+        // Shows the y2 axis.
+        document.getElementsByClassName('c3-axis-y2')[0].style.display = '';
+        // Changes the labels
+        chart.axis.labels({y: this.state.t1 + ' Stock Price $', y2: this.state.t2 + ' Stock Price $'});
+        chart.transform('line');
+        this.setState({type: 'line', typeTitle: 'Progression Chart'});
     }
 
     /**
@@ -312,23 +302,23 @@ class StockVisuals extends React.Component
      */
     barChart()
     {
-        if (this.state.type !== 'bar')
-        {
-            let chart = this.state.chart;
+        let chart = this.state.chart;
 
-            // Shows the price history ratio and hides the ticker data.
-            chart.show(['Ratio']);
-            chart.legend.show(['Ratio']);
-            chart.hide([this.state.t1, this.state.t2]);
-            chart.legend.hide([this.state.t1, this.state.t2]);
-            // Hides the y2 axis.
-            $('.c3-axis-y2').css('display', 'none');
-            // Changes the y axis to ratio.
-            chart.axis.labels({y: 'Ratio'});
-            chart.transform('bar');
-            this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + this.state.t1 + ' : ' + this.state.t2 + ')'});
-        }
+        // Shows the price history ratio and hides the ticker data.
+        chart.show(['Ratio']);
+        chart.legend.show(['Ratio']);
+        chart.hide([this.state.t1, this.state.t2]);
+        chart.legend.hide([this.state.t1, this.state.t2]);
+        // Hides the y2 axis.
+        document.getElementsByClassName('c3-axis-y2')[0].style.display = 'none';
+        // Changes the y axis to ratio.
+        chart.axis.labels({y: 'Ratio'});
+        chart.transform('bar');
+        this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + this.state.t1 + ' : ' + this.state.t2 + ')'});
     }
+
+    switchToLineChart() { if (this.state.type !== 'line') this.lineChart(); }
+    switchToBarChart() { if (this.state.type !== 'bar') this.barChart(); }
 
     /**
      * Switch to data table.
@@ -384,8 +374,8 @@ class StockVisuals extends React.Component
                             />
                             <OptionBar
                                 chartType = {this.state.type}
-                                lineChart = {() => this.lineChart()}
-                                barChart = {() => this.barChart()}
+                                lineChart = {() => this.switchToLineChart()}
+                                barChart = {() => this.switchToBarChart()}
                                 dataTable = {() => this.dataTable()}
                                 unloadData = {() => this.unloadData()}
                             />
