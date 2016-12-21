@@ -2,8 +2,8 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import c3 from 'c3';
-import yahooFinance from 'yahoo-finance';
-import googleFinance from 'google-finance';
+// import yahooFinance from 'yahoo-finance';
+// import googleFinance from 'google-finance';
 
 import TickerForm from './TickerForm';
 import OptionBar from './OptionBar';
@@ -64,7 +64,7 @@ class StockVisuals extends React.Component
             startDateString !== this.state.startDateString ||
             endDateString !== this.state.endDateString)
         {
-            console.log(startDateString,endDateString);
+            // console.log(startDateString,endDateString);
             yahooFinance.historical
             (
                 {
@@ -73,7 +73,23 @@ class StockVisuals extends React.Component
                     to: endDateString,
                 }, (err, result) =>
                 {
-                    console.log(result);
+                    if (err) { throw err; }
+                    _.each(result, function (quotes, symbol) {
+                    console.log(util.format(
+                        '=== %s (%d) ===',
+                        symbol,
+                        quotes.length
+                    ).cyan);
+                    if (quotes[0]) {
+                        console.log(
+                        '%s\n...\n%s',
+                        JSON.stringify(quotes[0], null, 2),
+                        JSON.stringify(quotes[quotes.length - 1], null, 2)
+                        );
+                    } else {
+                        console.log('N/A');
+                    }
+                    });
                 }
             );
             // // https://www.google.com/finance/historical?q=YHOO&startdate=2015-12-20&enddate=2016-12-20
@@ -225,7 +241,7 @@ class StockVisuals extends React.Component
         return ratios;
     }
 
-    generateRandomPrices(stockName, days, max = 100, min = 1)
+    generateRandomPrices(stockName, days, max = 100, min = 75)
     {
         let prices = [stockName],
             random, price;
