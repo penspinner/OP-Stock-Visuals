@@ -4,7 +4,7 @@
   "description": "A visualization tool for analysts to have is a pair viewer that allows them to compare the historical prices of two stocks",
   "main": "app.js",
   "scripts": {
-    "start": ""
+    "start": "node app/app.js"
   },
   "author": "Steven Liao",
   "license": "ISC",
