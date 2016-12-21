@@ -18,7 +18,9 @@ class StockVisuals extends React.Component
         this.state = 
         {
             type: 'line',
-            typeTitle: 'Progression Chart'
+            typeTitle: 'Progression Chart',
+            t1: 'Ticker 1',
+            t2: 'Ticker 2'
         };
     }
 
@@ -130,37 +132,11 @@ class StockVisuals extends React.Component
                 // Then create the charts and table.
                 () =>
                 {
-                    this.createChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio);
-                    this.createDataTable(t1, t2, numDays, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio);
+                    this.fillChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio);
+                    this.fillDataTable(t1, t2, numDays, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio);
                 }
             );
         }   
-    }
-
-    /**
-     * Creates the chart with the given parameters and stores it into the state.
-     */
-    createChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
-    {
-        let chart = this.state.chart;
-        // Unload all stock price data and regenerate new data.
-        chart.unload
-        ({
-            done: () =>
-            {
-                let hiddenData = this.state.type === 'line' ? ['Ratio'] : [t1, t2];
-                
-                chart.load
-                ({
-                    columns: [dateList, t1PriceHistory, t2PriceHistory],
-                    axes: {[t2]: 'y2'}
-                });
-                chart.axis.labels({y: t1 + ' Stock Price $', y2: t2 + ' Stock Price $'})
-                // chart.hide(hiddenData);
-                // chart.zoom([new Date().setDate(new Date().getDate() - 10), new Date()]);
-                this.setState({chart: chart});
-            }
-        });
     }
 
     /**
@@ -192,9 +168,40 @@ class StockVisuals extends React.Component
     }
 
     /**
+     * Creates the chart with the given parameters and stores it into the state.
+     */
+    fillChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
+    {
+        let chart = this.state.chart;
+        // Unload all stock price data and regenerate new data.
+        chart.unload
+        ({
+            done: () =>
+            {
+                let hiddenData = this.state.type === 'line' ? ['Ratio'] : [t1, t2];
+                chart.hide(hiddenData);
+                chart.legend.hide(hiddenData);
+                
+                chart.load
+                ({
+                    columns: [dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio],
+                    axes: {[t2]: 'y2'}
+                });
+                if (this.state.type === 'line')
+                    chart.axis.labels({y: t1 + ' Stock Price $', y2: t2 + ' Stock Price $'});
+                else if (this.state.type === 'bar')
+                    chart.axis.labels({y: 'Ratio'});
+                    
+                // chart.zoom([new Date().setDate(new Date().getDate() - 10), new Date()]);
+                this.setState({chart: chart});
+            }
+        });
+    }
+
+    /**
      * Creates the data table and stores it into the state.
      */
-    createDataTable(t1, t2, numDays, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
+    fillDataTable(t1, t2, numDays, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
         let table, tableHead, tableBody, tableRows = [], currentRow;
 
@@ -209,7 +216,6 @@ class StockVisuals extends React.Component
                 </tr>
             </thead>
         );
-
         // Create each row with date, stock 1 price, stock 2 price, and price ratio.
         // Then push the row in the table rows.
         for (let i = numDays + 1; i >= 1; i--)
@@ -286,18 +292,18 @@ class StockVisuals extends React.Component
         if (this.state.type !== 'line')
         {
             let chart = this.state.chart;
+
+            // Hides the price history ratio and shows the ticker data.
             chart.hide(['Ratio']);
-            chart.unload
-            ({
-                done: () =>
-                {
-                    chart.load({columns: [this.state.t1PriceHistory, this.state.t2PriceHistory]});
-                    // chart.show([this.state.t1, this.state.t2]);
-                    chart.axis.labels({y: 'Stock Price $'});
-                    chart.transform('line');
-                    this.setState({type: 'line', typeTitle: 'Progression Chart'});
-                }
-            });
+            chart.legend.hide(['Ratio']);
+            chart.show([this.state.t1, this.state.t2]);
+            chart.legend.show([this.state.t1, this.state.t2]);
+            // Shows the y2 axis.
+            $('.c3-axis-y2').css('display', '');
+            // Changes the labels
+            chart.axis.labels({y: this.state.t1 + ' Stock Price $'});
+            chart.transform('line');
+            this.setState({type: 'line', typeTitle: 'Progression Chart'});
         }
     }
 
@@ -309,20 +315,18 @@ class StockVisuals extends React.Component
         if (this.state.type !== 'bar')
         {
             let chart = this.state.chart;
+
+            // Shows the price history ratio and hides the ticker data.
             chart.show(['Ratio']);
-            chart.unload
-            ({
-                done: () =>
-                {
-                    // TODO: need to hide y2 axis
-                    chart.load({columns: [this.state.priceHistoryRatio]});
-                    chart.axis.labels({y: 'Ratio'});
-                    chart.transform('bar');
-                    let t1 = this.state.t1 || 'Ticker 1',
-                        t2 = this.state.t2 || 'Ticker 2';
-                    this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')'});
-                }
-            });
+            chart.legend.show(['Ratio']);
+            chart.hide([this.state.t1, this.state.t2]);
+            chart.legend.hide([this.state.t1, this.state.t2]);
+            // Hides the y2 axis.
+            $('.c3-axis-y2').css('display', 'none');
+            // Changes the y axis to ratio.
+            chart.axis.labels({y: 'Ratio'});
+            chart.transform('bar');
+            this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + this.state.t1 + ' : ' + this.state.t2 + ')'});
         }
     }
 
@@ -347,8 +351,8 @@ class StockVisuals extends React.Component
             this.state.chart.unload();
             this.setState
             ({
-                t1: '',
-                t2: '',
+                t1: 'Ticker 1',
+                t2: 'Ticker 2',
                 t1PriceHistory: [],
                 t2PriceHistory: [],
                 priceHistoryRatio: [],

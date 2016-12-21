@@ -8,7 +8,6 @@ class ChartAndTable extends React.Component
             <div>
                 <h3 className="text-center">{this.props.typeTitle}</h3>
                 <div className={"c3" + (this.props.type === "line" || this.props.type === "bar" ? "" : " hidden")}>
-                    
                     <div id="chart"></div>
                 </div>
                 <div id="dataTable" className={(this.props.type === "table" ? "" : "hidden")}>
