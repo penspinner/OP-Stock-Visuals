@@ -16,16 +16,20 @@ class Statistics extends React.Component
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Most recent: ${this.props.statistics.t1Today}</td>
-                            <td>Most recent: ${this.props.statistics.t2Today}</td>
+                            <td>Recent: ${this.props.statistics.t1Recent}</td>
+                            <td>Recent: ${this.props.statistics.t2Recent}</td>
                         </tr>
                         <tr>
-                            <td>Highest: ${this.props.statistics.t1Max}</td>
-                            <td>Highest: ${this.props.statistics.t2Max}</td>
+                            <td>Oldest: ${this.props.statistics.t1Oldest}</td>
+                            <td>Oldest: ${this.props.statistics.t2Oldest}</td>
                         </tr>
                         <tr>
-                            <td>Lowest: ${this.props.statistics.t1Min}</td>
-                            <td>Lowest: ${this.props.statistics.t2Min}</td>
+                            <td>High: ${this.props.statistics.t1Max}</td>
+                            <td>High: ${this.props.statistics.t2Max}</td>
+                        </tr>
+                        <tr>
+                            <td>Low: ${this.props.statistics.t1Min}</td>
+                            <td>Low: ${this.props.statistics.t2Min}</td>
                         </tr>
                     </tbody>
                 </table>

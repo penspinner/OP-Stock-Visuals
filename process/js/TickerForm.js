@@ -1,5 +1,4 @@
 import React from 'react';
-import $ from 'jquery';
 
 let defaultEndDate = new Date();
 let defaultStartDate = new Date(defaultEndDate.getFullYear() - 1, defaultEndDate.getMonth(), defaultEndDate.getDate());
@@ -34,7 +33,7 @@ class TickerForm extends React.Component
             if (dStart.getTime() < dEnd.getTime())
                 this.props.initData(this._t1.value, this._t2.value, this._dStart.value, this._dEnd.value);
             else
-                console.log('First date needs to be before end date.')
+                alert('Start date needs to be before end date.');
         } else
         {
             alert('Please enter ticker names.');
@@ -67,7 +66,7 @@ class TickerForm extends React.Component
                         <input className="form-control" ref={(ref) => this._dEnd = ref} type="date"
                             defaultValue={formatDate(defaultEndDate, '-')}/>
                     </div>
-                    <button type="submit" className="btn btn-primary">Update</button>
+                    <button type="submit" className="btn btn-primary">Update Prices</button>
                 </form>
             </div>
         );

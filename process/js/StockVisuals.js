@@ -20,7 +20,6 @@ class StockVisuals extends React.Component
             type: 'line',
             typeTitle: 'Progression Chart'
         };
-        console.log($, yahooFinance);
     }
 
     /* On mount, init chart and set it in the state. */
@@ -43,11 +42,14 @@ class StockVisuals extends React.Component
                             // label: {text: 'Date MM/DD/YYYY', position: 'outer-center'}
                         },
                     y:  {
-                            // tick: {format: (d) => ('$' + d)},
-                            label: {text: 'Stock Price $', position: 'outer-middle'}
+                            label: {text: 'Ticker 1 Stock Price $', position: 'outer-middle'}
+                        },
+                    y2: {
+                            label: {text: 'Ticker 2 Stock Price $', position: 'outer-middle'},
+                            show: true
                         }
                 },
-                grid: {x: {show: true}, y: {show: true}},
+                grid: {y: {show: true}},
                 bar: {width: 3},
                 size: {height: 500},
                 zoom: {enabled: true}
@@ -55,7 +57,13 @@ class StockVisuals extends React.Component
         this.setState({chart: chart});
     }
 
-    /*  */
+    
+    /** 
+     * Generate data for the given tickers and starting & ending date.
+     * Then store them in the state and create the charts and table.
+     * @param t1, t2 - Ticker 1, Ticker 2
+     * @param startDateString, endDateString
+    */
     initData(t1, t2, startDateString, endDateString)
     {
         // Create new chart only if input values are different from before. 
@@ -65,33 +73,17 @@ class StockVisuals extends React.Component
             endDateString !== this.state.endDateString)
         {
             // console.log(startDateString,endDateString);
-            yahooFinance.historical
-            (
-                {
-                    symbols: [t1, t2],
-                    from: startDateString,
-                    to: endDateString,
-                }, (err, result) =>
-                {
-                    if (err) { throw err; }
-                    _.each(result, function (quotes, symbol) {
-                    console.log(util.format(
-                        '=== %s (%d) ===',
-                        symbol,
-                        quotes.length
-                    ).cyan);
-                    if (quotes[0]) {
-                        console.log(
-                        '%s\n...\n%s',
-                        JSON.stringify(quotes[0], null, 2),
-                        JSON.stringify(quotes[quotes.length - 1], null, 2)
-                        );
-                    } else {
-                        console.log('N/A');
-                    }
-                    });
-                }
-            );
+            // yahooFinance.historical
+            // (
+            //     {
+            //         symbols: [t1, t2],
+            //         from: startDateString,
+            //         to: endDateString,
+            //     }, (err, result) =>
+            //     {
+            //         console.log(result);
+            //     }
+            // );
             // // https://www.google.com/finance/historical?q=YHOO&startdate=2015-12-20&enddate=2016-12-20
             // let data = {
             //     "q": t1,
@@ -113,10 +105,10 @@ class StockVisuals extends React.Component
             
             let typeTitle = this.state.type === 'bar' ? 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')' : this.state.typeTitle,
                 numDays = this.getNumDaysBetween(new Date(startDateString.replace(/-/g, '\/')), new Date(endDateString.replace(/-/g, '\/'))),
-                dateList = this.generateDateList(numDays, endDateString),
+                dateList = this.generateDateList(numDays, endDateString.replace(/-/g, '\/')),
                 t1PriceHistory = this.generateRandomPrices(t1, numDays),
-                t2PriceHistory = this.generateRandomPrices(t2, numDays),
-                priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory),
+                t2PriceHistory = this.generateRandomPrices(t2, numDays, 150, 100),
+                priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory.slice(1), t2PriceHistory.slice(1)),
                 statistics = this.getDataStatistics(t1, t2, t1PriceHistory.slice(1), t2PriceHistory.slice(1));
 
             // Set values into the state.
@@ -145,6 +137,9 @@ class StockVisuals extends React.Component
         }   
     }
 
+    /**
+     * Creates the chart with the given parameters and stores it into the state.
+     */
     createChart(t1, t2, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
         let chart = this.state.chart;
@@ -155,26 +150,32 @@ class StockVisuals extends React.Component
             {
                 let hiddenData = this.state.type === 'line' ? ['Ratio'] : [t1, t2];
                 
-                // console.log(priceHistoryRatio);
                 chart.load
                 ({
-                    columns: [dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio]
+                    columns: [dateList, t1PriceHistory, t2PriceHistory],
+                    axes: {[t2]: 'y2'}
                 });
-                chart.hide(hiddenData);
+                chart.axis.labels({y: t1 + ' Stock Price $', y2: t2 + ' Stock Price $'})
+                // chart.hide(hiddenData);
                 // chart.zoom([new Date().setDate(new Date().getDate() - 10), new Date()]);
                 this.setState({chart: chart});
             }
         });
     }
 
+    /**
+     * Retrieve some statistics from the tickers price histories.
+     */
     getDataStatistics(t1, t2, t1PriceHistory, t2PriceHistory)
     {  
         let t1Max = Math.max(...t1PriceHistory),
             t2Max = Math.max(...t2PriceHistory),
             t1Min = Math.min(...t1PriceHistory),
             t2Min = Math.min(...t2PriceHistory),
-            t1Today = t1PriceHistory[t1PriceHistory.length - 1],
-            t2Today = t2PriceHistory[t2PriceHistory.length - 1];
+            t1Recent = t1PriceHistory[t1PriceHistory.length - 1],
+            t2Recent = t2PriceHistory[t2PriceHistory.length - 1],
+            t1Oldest = t1PriceHistory[0],
+            t2Oldest = t2PriceHistory[0];
         
         return {
             t1: t1,
@@ -183,11 +184,16 @@ class StockVisuals extends React.Component
             t2Max: t2Max,
             t1Min: t1Min,
             t2Min: t2Min,
-            t1Today: t1Today,
-            t2Today: t2Today
+            t1Recent: t1Recent,
+            t2Recent: t2Recent,
+            t1Oldest: t1Oldest,
+            t2Oldest: t2Oldest
         };
     }
 
+    /**
+     * Creates the data table and stores it into the state.
+     */
     createDataTable(t1, t2, numDays, dateList, t1PriceHistory, t2PriceHistory, priceHistoryRatio)
     {
         let table, tableHead, tableBody, tableRows = [], currentRow;
@@ -222,7 +228,7 @@ class StockVisuals extends React.Component
         tableBody = (<tbody>{tableRows}</tbody>);
         // Create the table.
         table = (
-            <table className="table table-condensed table-hover table-bordered">
+            <table className="table table-condensed table-bordered table-striped">
                 {tableHead}
                 {tableBody}
             </table>
@@ -233,7 +239,7 @@ class StockVisuals extends React.Component
     generatePriceHistoryRatio(t1, t2)
     {
         let ratios = ['Ratio'], ratio;
-        for (let i = 1; i < t1.length; i++)
+        for (let i = 0; i < t1.length; i++)
         {
             ratio = t1[i] / t2[i];
             ratios.push(ratio);
@@ -272,33 +278,57 @@ class StockVisuals extends React.Component
         return Math.round(Math.abs((d1.getTime() - d2.getTime()) / (dayMS)));
     }
 
+    /**
+     * Switch to line chart
+     */
     lineChart()
     {
         if (this.state.type !== 'line')
         {
-            this.state.chart.hide(['Ratio']);
-            this.state.chart.show([this.state.t1, this.state.t2]);
-            this.state.chart.axis.labels({y: 'Stock Price $'});
-            this.state.chart.transform('line');
-            this.setState({type: 'line', typeTitle: 'Progression Chart'});
+            let chart = this.state.chart;
+            chart.hide(['Ratio']);
+            chart.unload
+            ({
+                done: () =>
+                {
+                    chart.load({columns: [this.state.t1PriceHistory, this.state.t2PriceHistory]});
+                    // chart.show([this.state.t1, this.state.t2]);
+                    chart.axis.labels({y: 'Stock Price $'});
+                    chart.transform('line');
+                    this.setState({type: 'line', typeTitle: 'Progression Chart'});
+                }
+            });
         }
     }
 
+    /**
+     * Switch to bar chart.
+     */
     barChart()
     {
         if (this.state.type !== 'bar')
         {
-            this.state.chart.show(['Ratio']);
-            this.state.chart.hide([this.state.t1, this.state.t2]);
-            this.state.chart.axis.labels({y: 'Ratio'});
-            console.log(this.state.chart);
-            this.state.chart.transform('bar');
-            let t1 = this.state.t1 || 'Ticker 1',
-                t2 = this.state.t2 || 'Ticker 2';
-            this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')'});
+            let chart = this.state.chart;
+            chart.show(['Ratio']);
+            chart.unload
+            ({
+                done: () =>
+                {
+                    // TODO: need to hide y2 axis
+                    chart.load({columns: [this.state.priceHistoryRatio]});
+                    chart.axis.labels({y: 'Ratio'});
+                    chart.transform('bar');
+                    let t1 = this.state.t1 || 'Ticker 1',
+                        t2 = this.state.t2 || 'Ticker 2';
+                    this.setState({type: 'bar', typeTitle: 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')'});
+                }
+            });
         }
     }
 
+    /**
+     * Switch to data table.
+     */
     dataTable()
     {
         if (this.state.type !== 'table')
@@ -307,6 +337,9 @@ class StockVisuals extends React.Component
         }
     }
 
+    /**
+     * Unload all data from the chart and resets the state and ticker fields.
+     */
     unloadData() 
     {
         if (confirm('Are you sure you want to unload the chart data?'))

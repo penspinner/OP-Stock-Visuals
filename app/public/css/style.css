@@ -8308,6 +8308,7 @@ button.close {
 
 #stockVisuals #dataTable {
   max-height: 85%;
+  min-height: 500px;
   overflow: auto; }
 
 .nopad {
