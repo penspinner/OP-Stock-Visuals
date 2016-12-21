@@ -2,6 +2,8 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import c3 from 'c3';
+import yahooFinance from 'yahoo-finance';
+import googleFinance from 'google-finance';
 
 import TickerForm from './TickerForm';
 import OptionBar from './OptionBar';
@@ -18,7 +20,7 @@ class StockVisuals extends React.Component
             type: 'line',
             typeTitle: 'Progression Chart'
         };
-        console.log($);
+        console.log($, yahooFinance);
     }
 
     /* On mount, init chart and set it in the state. */
@@ -41,8 +43,8 @@ class StockVisuals extends React.Component
                             // label: {text: 'Date MM/DD/YYYY', position: 'outer-center'}
                         },
                     y:  {
-                            tick: {format: (d) => ('$' + d)},
-                            label: {text: 'Stock Price', position: 'outer-middle'}
+                            // tick: {format: (d) => ('$' + d)},
+                            label: {text: 'Stock Price $', position: 'outer-middle'}
                         }
                 },
                 grid: {x: {show: true}, y: {show: true}},
@@ -62,15 +64,26 @@ class StockVisuals extends React.Component
             startDateString !== this.state.startDateString ||
             endDateString !== this.state.endDateString)
         {
+            console.log(startDateString,endDateString);
+            googleFinance.historical
+            (
+                {
+                    symbols: [t1, t2],
+                    from: startDateString,
+                    to: endDateString,
+                }, (err, result) =>
+                {
+                    console.log(result);
+                }
+            );
+            
             let typeTitle = this.state.type === 'bar' ? 'Price Ratio Chart (' + t1 + ' : ' + t2 + ')' : this.state.typeTitle,
-                numDays = this.getNumDaysBetween(new Date(startDateString), new Date(endDateString)),
+                numDays = this.getNumDaysBetween(new Date(startDateString.replace(/-/g, '\/')), new Date(endDateString.replace(/-/g, '\/'))),
                 dateList = this.generateDateList(numDays, endDateString),
                 t1PriceHistory = this.generateRandomPrices(t1, numDays),
                 t2PriceHistory = this.generateRandomPrices(t2, numDays),
                 priceHistoryRatio = this.generatePriceHistoryRatio(t1PriceHistory, t2PriceHistory),
                 statistics = this.getDataStatistics(t1, t2, t1PriceHistory.slice(1), t2PriceHistory.slice(1));
-
-            // console.log(statistics);
 
             // Set values into the state.
             this.setState
@@ -231,6 +244,7 @@ class StockVisuals extends React.Component
         {
             this.state.chart.hide(['Ratio']);
             this.state.chart.show([this.state.t1, this.state.t2]);
+            this.state.chart.axis.labels({y: 'Stock Price $'});
             this.state.chart.transform('line');
             this.setState({type: 'line', typeTitle: 'Progression Chart'});
         }
@@ -242,6 +256,8 @@ class StockVisuals extends React.Component
         {
             this.state.chart.show(['Ratio']);
             this.state.chart.hide([this.state.t1, this.state.t2]);
+            this.state.chart.axis.labels({y: 'Ratio'});
+            console.log(this.state.chart);
             this.state.chart.transform('bar');
             let t1 = this.state.t1 || 'Ticker 1',
                 t2 = this.state.t2 || 'Ticker 2';
@@ -279,34 +295,36 @@ class StockVisuals extends React.Component
     render()
     {
         return (
-            <div className="container">
-                <h1 className="text-center">OP Stock Visuals</h1>
-                <div className="row">
-                    <div className="col-md-9 pad">
-                        <ChartAndTable
-                            typeTitle = {this.state.typeTitle}
-                            type = {this.state.type}
-                            table = {this.state.table}
-                        />
-                    </div>
-                    <div className="col-md-3 pad">
-                        <TickerForm
-                            ref = {(ref) => this._TickerForm = ref}
-                            initData = {(t1, t2, startDate, endDate) => this.initData(t1, t2, startDate, endDate)}
-                        />
-                        <OptionBar
-                            chartType = {this.state.type}
-                            lineChart = {() => this.lineChart()}
-                            barChart = {() => this.barChart()}
-                            dataTable = {() => this.dataTable()}
-                            unloadData = {() => this.unloadData()}
-                        />
-                        {
-                            this.state.statistics &&
-                            <Statistics
-                                statistics = {this.state.statistics}
+            <div>
+                <div className="title text-center">OP Stock Visuals</div>
+                <div className="container">
+                    <div className="row">
+                        <div className="col-md-9 pad">
+                            <ChartAndTable
+                                typeTitle = {this.state.typeTitle}
+                                type = {this.state.type}
+                                table = {this.state.table}
                             />
-                        }
+                        </div>
+                        <div className="col-md-3 pad">
+                            <TickerForm
+                                ref = {(ref) => this._TickerForm = ref}
+                                initData = {(t1, t2, startDate, endDate) => this.initData(t1, t2, startDate, endDate)}
+                            />
+                            <OptionBar
+                                chartType = {this.state.type}
+                                lineChart = {() => this.lineChart()}
+                                barChart = {() => this.barChart()}
+                                dataTable = {() => this.dataTable()}
+                                unloadData = {() => this.unloadData()}
+                            />
+                            {
+                                this.state.statistics &&
+                                <Statistics
+                                    statistics = {this.state.statistics}
+                                />
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

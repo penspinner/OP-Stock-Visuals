@@ -8290,6 +8290,11 @@ button.close {
 #stockVisuals input[type=text] {
   text-transform: uppercase; }
 
+#stockVisuals .title {
+  background-color: #1F7F9E;
+  color: #EAE3CB;
+  font-size: 2em; }
+
 #stockVisuals .icon {
   cursor: pointer;
   padding: 6px; }

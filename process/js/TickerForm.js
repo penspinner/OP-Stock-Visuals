@@ -32,7 +32,7 @@ class TickerForm extends React.Component
         if (this._t1.value && this._t2.value)
         {
             if (dStart.getTime() < dEnd.getTime())
-                this.props.initData(this._t1.value, this._t2.value, this._dStart.value.replace(/-/g, '\/'), this._dEnd.value.replace(/-/g, '\/'));
+                this.props.initData(this._t1.value, this._t2.value, this._dStart.value, this._dEnd.value);
             else
                 console.log('First date needs to be before end date.')
         } else
