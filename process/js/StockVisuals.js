@@ -72,7 +72,6 @@ class StockVisuals extends React.Component
             startDateString !== this.state.startDateString ||
             endDateString !== this.state.endDateString)
         {
-            // console.log(startDateString,endDateString);
             // yahooFinance.historical
             // (
             //     {
@@ -248,8 +247,7 @@ class StockVisuals extends React.Component
 
     generateRandomPrices(stockName, days, max = 100, min = 75)
     {
-        let prices = [stockName],
-            random, price;
+        let prices = [stockName], random, price;
         for (let i = 0; i <= days; i++)
         {
             random = Math.random() * (max - min) + min;

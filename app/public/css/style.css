@@ -8293,7 +8293,8 @@ button.close {
 #stockVisuals .title {
   background-color: #1F7F9E;
   color: #EAE3CB;
-  font-size: 2em; }
+  font-size: 2em;
+  padding: 10px; }
 
 #stockVisuals .icon {
   cursor: pointer;
