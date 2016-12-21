@@ -41,6 +41,7 @@ A visualization tool for analysts to have is a pair viewer that allows them to c
 * **Click** on the icons to change to the chart/table that you want to see.
   * Line chart icon for line chart
   * Bar chart icon for bar chart
+    * The bar chart will show the ratio of the first stock to the second stock. (Ticker 1/Ticker 2)
   * Table icon for data table
     * You can scroll the data table to see data for each day.
   * Cross icon to unload all data from the chart and table.
