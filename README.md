@@ -29,7 +29,6 @@ A visualization tool for analysts to have is a pair viewer that allows them to c
   * Ticker 2 prices will be randomly generated between 100 and 150.
 * You should see the chart filled with colorful lines and data points.
   * The x-axis is the date corresponding to the ticker price data.
-  * Ticker 1 will be based on y-axis; Ticker 2 will be based on y2-axis.
 
 ### Chart functionality
 * **Mouseover/Hover** a certain data point on the chart to see a tooltip of that data.
@@ -40,6 +39,7 @@ A visualization tool for analysts to have is a pair viewer that allows them to c
 ### Option bar functionality
 * **Click** on the icons to change to the chart/table that you want to see.
   * Line chart icon for line chart
+    * Ticker 1 will be based on y-axis; Ticker 2 will be based on y2-axis.
   * Bar chart icon for bar chart
     * The bar chart will show the ratio of the first stock to the second stock. (Ticker 1/Ticker 2)
   * Table icon for data table
