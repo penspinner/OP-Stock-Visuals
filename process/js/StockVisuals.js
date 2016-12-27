@@ -1,4 +1,3 @@
-// import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import c3 from 'c3';
@@ -22,6 +21,16 @@ class StockVisuals extends React.Component
             t1: 'Ticker 1',
             t2: 'Ticker 2'
         };
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = () => 
+        {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                console.log(this.responseText);
+            }
+        };
+        xhttp.open("POST", "/quote?url=http://chart.finance.yahoo.com/table.csv?s=YHOO&a=10&b=27&c=2016&d=11&e=27&f=2016&g=d&ignore=.csv", true);
+        xhttp.send();
     }
 
     /* On mount, init chart and set it in the state. */

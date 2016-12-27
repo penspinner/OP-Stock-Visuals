@@ -28,6 +28,7 @@ gulp.task('js', function()
         debug: true
     })
     .transform('babelify', {presets: ['es2015', 'react']})
+    .transform('brfs')
     .bundle()
     .pipe(source('StockVisuals.js'))
     .pipe(gulp.dest(outputDir + 'public/js'));
