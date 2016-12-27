@@ -1,14 +1,17 @@
-var express = require('express');
-var yql = require('yql');
+var express = require('express'),
+    yql = require('yql');
 
 let app = express();
 
 app.set('port', process.env.port || 4000);
 app.use(express.static(__dirname + '/public'));
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+
+// app.use(bodyparser.json());
+// app.use(bodyparser.urlencoded({extended: false}));
 app.post('/quote', (req, res) =>
 {
-    console.log(req.query);
+    // console.log(req.query);
     var url = "";
     for (var param in req.query)
     {
