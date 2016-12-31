@@ -31,7 +31,7 @@ class StockVisuals extends React.Component
         {
             if (xhttp.readyState == XMLHttpRequest.DONE && xhttp.status == 200) 
             {
-                console.log(xhttp.responseText);
+                this.printResult(xhttp.responseText);
             }
         };
         xhttp.open("POST", "/quote?url=http://chart.finance.yahoo.com/table.csv?s=YHOO&a=10&b=27&c=2016&d=11&e=27&f=2016&g=d&ignore=.csv", true);
@@ -68,6 +68,27 @@ class StockVisuals extends React.Component
         this.setState({chart: chart});
     }
 
+    printResult(result)
+    {
+        if (result)
+        {
+            result = JSON.parse(result);
+            let rows = result.query.results.row;
+            console.log(result);
+            console.log(rows);
+
+            for (let i = 0; i < rows.length; i++)
+            {
+                let tempRow = rows[i];
+                let s = '';
+                for (let key in tempRow)
+                {
+                    s += tempRow[key] + ' ';
+                }
+                console.log(s);
+            }
+        }
+    }
     
     /** 
      * Generate data for the given tickers and starting & ending date.
